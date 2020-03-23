@@ -101,7 +101,9 @@ impl Request<Processed> {
             selection: _selection,
         } = &self;
 
-        let client = reqwest::blocking::Client::new();
+        let client = reqwest::blocking::Client::builder()
+            .danger_accept_invalid_certs(true)
+            .build()?;
         let mut request_builder = client.request(method.into(), target);
         request_builder = set_headers(headers, request_builder);
         request_builder = set_body(body, request_builder);
