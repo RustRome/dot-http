@@ -33,13 +33,12 @@ impl From<script_engine::Error> for Error {
 }
 
 pub trait ResponseHandler {
-    type Outputter: Outputter<Response = Self::Response>;
     type Response: Into<ScriptResponse>;
 
     fn handle(
         &self,
         engine: &mut dyn ScriptEngine,
-        outputter: &mut Self::Outputter,
+        outputter: &mut dyn Outputter<Response = Self::Response>,
         request_script: &RequestScript<Processed>,
         response: Self::Response,
     ) -> Result<(), Error> {
@@ -207,6 +206,5 @@ impl From<DefaultResponse> for ScriptResponse {
 pub struct DefaultResponseHandler;
 
 impl ResponseHandler for DefaultResponseHandler {
-    type Outputter = DefaultOutputter;
     type Response = DefaultResponse;
 }
