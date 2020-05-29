@@ -351,9 +351,11 @@ fn main() {
                 .help("Sequentially run all the requests in the file"),
         )
         .arg(
-            Arg::with_name("QUIET")
-                .short("q")
-                .help("Sequentially run all the requests in the file"),
+            Arg::with_name("OUTPUT")
+                .short("o")
+                .default_value("DEFAULT")
+                .validator(is_valid_output)
+                .help("Choose witch output generated, possible options DEFAULT, QUIET, VERBOSE"),
         )
         .usage("dot-http [OPTIONS] <FILE>")
         .get_matches();
@@ -364,11 +366,18 @@ fn main() {
     let env = matches.value_of("ENVIRONMENT").unwrap().to_string();
     let env_file = matches.value_of("ENV_FILE").unwrap().to_string();
     let snapshot_file = matches.value_of("SNAPSHOT_FILE").unwrap().to_string();
-    let quiet: bool = matches.is_present("QUIET");
-    let mut controller = if quiet {
-        Controller::quiet()
-    } else {
-        Controller::default()
+
+    let output = matches
+        .value_of("OUTPUT")
+        .unwrap()
+        .to_string()
+        .to_lowercase();
+    let m_output: &str = &output;
+    let mut controller = match m_output {
+        "quiet" => Controller::quiet(),
+        "default" => Controller::default(),
+        "verbose" => Controller::verbose(),
+        _ => unreachable!("impossible validation already handled this"),
     };
     match controller.execute(
         offset,
@@ -392,5 +401,17 @@ fn is_valid_line_number(val: String) -> Result<(), String> {
         }
         Ok(_) => Ok(()),
         Err(_) => Err(String::from("Line number is not a valid integer")),
+    }
+}
+
+fn is_valid_output(val: String) -> Result<(), String> {
+    let val = val.to_lowercase();
+    let met: &str = &val;
+    match met {
+        "quiet" | "verbose" | "default" => Ok(()),
+        _ => Err(format!(
+            "Invalid output format '{}', options are DEFAULT,QUIET,VERBOSE",
+            val
+        )),
     }
 }
