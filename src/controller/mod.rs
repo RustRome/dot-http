@@ -5,7 +5,9 @@ use crate::model::*;
 use crate::parser::parse;
 
 use crate::response_handler::boa::DefaultResponseHandler;
-use crate::response_handler::{DefaultOutputter, DefaultResponse, Outputter, ResponseHandler};
+use crate::response_handler::{
+    DefaultOutputter, DefaultResponse, Outputter, QuietOutputter, ResponseHandler,
+};
 use crate::script_engine::create_script_engine;
 
 use crate::script_engine::{Processable, ScriptEngine};
@@ -75,6 +77,15 @@ impl Default for Controller {
     }
 }
 impl Controller {
+    pub fn quiet() -> Self {
+        let outputter = Box::new(QuietOutputter::new());
+        Controller {
+            outputter,
+            engine: create_script_engine(),
+            response_handler: Box::new(DefaultResponseHandler {}),
+        }
+    }
+
     pub fn execute(
         &mut self,
         offset: usize,

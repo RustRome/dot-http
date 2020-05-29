@@ -350,6 +350,11 @@ fn main() {
                 .short("a")
                 .help("Sequentially run all the requests in the file"),
         )
+        .arg(
+            Arg::with_name("QUIET")
+                .short("q")
+                .help("Sequentially run all the requests in the file"),
+        )
         .usage("dot-http [OPTIONS] <FILE>")
         .get_matches();
 
@@ -359,8 +364,12 @@ fn main() {
     let env = matches.value_of("ENVIRONMENT").unwrap().to_string();
     let env_file = matches.value_of("ENV_FILE").unwrap().to_string();
     let snapshot_file = matches.value_of("SNAPSHOT_FILE").unwrap().to_string();
-
-    let mut controller = Controller::default();
+    let quiet: bool = matches.is_present("QUIET");
+    let mut controller = if quiet {
+        Controller::quiet()
+    } else {
+        Controller::default()
+    };
     match controller.execute(
         offset,
         all,
