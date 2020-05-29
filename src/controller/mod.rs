@@ -5,7 +5,7 @@ use crate::model::*;
 use crate::parser::parse;
 
 use crate::response_handler::boa::DefaultResponseHandler;
-use crate::response_handler::{DefaultOutputter, Outputter, ResponseHandler};
+use crate::response_handler::{DefaultOutputter, DefaultResponse, Outputter, ResponseHandler};
 use crate::script_engine::create_script_engine;
 
 use crate::script_engine::{Processable, ScriptEngine};
@@ -60,17 +60,17 @@ impl std::fmt::Display for Error {
 
 pub struct Controller {
     engine: Box<dyn ScriptEngine>,
-    outputter: DefaultOutputter,
-    response_handler: DefaultResponseHandler,
+    outputter: Box<dyn Outputter<Response = DefaultResponse>>,
+    response_handler: Box<dyn ResponseHandler<Response = DefaultResponse>>,
 }
 
 impl Default for Controller {
     fn default() -> Self {
-        let outputter: DefaultOutputter = DefaultOutputter::new();
+        let outputter = Box::new(DefaultOutputter::new());
         Controller {
             outputter,
             engine: create_script_engine(),
-            response_handler: DefaultResponseHandler {},
+            response_handler: Box::new(DefaultResponseHandler {}),
         }
     }
 }
@@ -92,7 +92,7 @@ impl Controller {
         })?;
 
         let engine = &mut *self.engine;
-        let outputter = &mut self.outputter;
+        let outputter = &mut *self.outputter;
         let env_file = match read_to_string(env_file) {
             Ok(script) => Ok(script),
             Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
