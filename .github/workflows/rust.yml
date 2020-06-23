@@ -44,6 +44,25 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
+  v8_test:
+    name: V8 Test Suite
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      - name: Run cargo test
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --features "rusty_v8" --no-default-features
 
   lints:
     name: Lints
