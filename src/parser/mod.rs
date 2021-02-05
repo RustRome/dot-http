@@ -6,7 +6,6 @@ use pest::error::LineColLocation;
 use pest::iterators::Pair;
 use pest::Parser;
 use pest::Span;
-use serde::export::Formatter;
 use std::error;
 use std::fmt;
 use std::fmt::Display;
@@ -25,7 +24,7 @@ pub struct Error {
 impl error::Error for Error {}
 
 impl fmt::Display for Error {
-    fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
         fmt.write_str(self.message.as_str())
     }
 }
@@ -305,7 +304,7 @@ pub fn parse(filename: PathBuf, source: &str) -> Result<File> {
 }
 
 impl Display for Value {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match &self.state {
             Unprocessed::WithInline { value, .. } => f.write_str(&value),
             Unprocessed::WithoutInline(value, _) => f.write_str(&value),
